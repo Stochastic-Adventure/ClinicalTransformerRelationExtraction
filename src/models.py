@@ -13,7 +13,7 @@ from transformers import (BertForSequenceClassification, BertModel,
                           ElectraForSequenceClassification, ElectraModel,
                           PreTrainedModel)
 from model_utils import StableDropout, FocalLoss, BCEFocalLoss
-
+from model_utils import ContextPooler
 
 logger = TransformerLogger(logger_level='i').get_logger()
 
@@ -282,7 +282,6 @@ class LongFormerForRelationIdentification(LongformerForSequenceClassification, B
 
 class DebertaForRelationIdentification(DebertaForSequenceClassification, BaseModel):
     def __init__(self, config):
-        from model_utils import ContextPooler
         super().__init__(config)
         self.deberta = DebertaModel(config)
         self.pooler = ContextPooler(config)
@@ -323,6 +322,7 @@ class GPT2ForRelationIdentification(GPT2ForSequenceClassification, BaseModel):
     def __init__(self, config):
         super().__init__(config)
         self.gpt2 = GPT2Model(config)
+        self.pooler = ContextPooler(config)
         self.init_weights()
 
     def forward(self,
@@ -347,8 +347,8 @@ class GPT2ForRelationIdentification(GPT2ForSequenceClassification, BaseModel):
             output_hidden_states=output_hidden_states
         )
 
-        pooled_output = outputs[1]
         seq_output = outputs[0]
+        pooled_output = self.pooler(seq_output)
         logits = self.output2logits(pooled_output, seq_output, input_ids)
 
         return self.calc_loss(logits, outputs, labels)
@@ -358,6 +358,7 @@ class ElectraForRelationIdentification(ElectraForSequenceClassification, BaseMod
     def __init__(self, config):
         super().__init__(config)
         self.electra = ElectraModel(config)
+        self.pooler = ContextPooler(config)
         self.init_weights()
 
     def forward(self,
@@ -382,8 +383,8 @@ class ElectraForRelationIdentification(ElectraForSequenceClassification, BaseMod
             output_hidden_states=output_hidden_states
         )
 
-        pooled_output = outputs[1]
         seq_output = outputs[0]
+        pooled_output = self.pooler(seq_output)
         logits = self.output2logits(pooled_output, seq_output, input_ids)
 
         return self.calc_loss(logits, outputs, labels)
