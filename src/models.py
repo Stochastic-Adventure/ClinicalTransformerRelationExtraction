@@ -9,6 +9,8 @@ from transformers import (BertForSequenceClassification, BertModel,
                           AlbertForSequenceClassification, AlbertModel,
                           LongformerForSequenceClassification, LongformerModel,
                           DebertaForSequenceClassification, DebertaModel,
+                          GPT2ForSequenceClassification, GPT2Model,
+                          ElectraForSequenceClassification, ElectraModel,
                           PreTrainedModel)
 from model_utils import StableDropout, FocalLoss, BCEFocalLoss
 
@@ -24,8 +26,8 @@ class BaseModel(PreTrainedModel):
         self.spec_tag1, self.spec_tag2, self.spec_tag3, self.spec_tag4 = config.tags
         self.scheme = config.scheme
         self.num_labels = config.num_labels
-        sample_weights = config.sample_weights if config.balance_sample_weights else None
-        sample_weights = torch.tensor(sample_weights, dtype=torch.float32)
+        sample_weights = torch.tensor(config.sample_weights, dtype=torch.float32) if config.balance_sample_weights else None
+        # sample_weights = torch.tensor(sample_weights, dtype=torch.float32)
 
         if config.use_focal_loss:
             # TODO: the sample weights need to be tuned for focal loss functions; we do not support currently
@@ -312,6 +314,76 @@ class DebertaForRelationIdentification(DebertaForSequenceClassification, BaseMod
 
         seq_output = outputs[0]
         pooled_output = self.pooler(seq_output)
+        logits = self.output2logits(pooled_output, seq_output, input_ids)
+
+        return self.calc_loss(logits, outputs, labels)
+
+
+class GPT2ForRelationIdentification(GPT2ForSequenceClassification, BaseModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.gpt2 = GPT2Model(config)
+        self.init_weights()
+
+    def forward(self,
+                input_ids=None,
+                attention_mask=None,
+                token_type_ids=None,
+                position_ids=None,
+                head_mask=None,
+                inputs_embeds=None,
+                labels=None,
+                output_attentions=None,
+                output_hidden_states=None,
+                **kwargs):
+
+        outputs = self.gpt2(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states
+        )
+
+        pooled_output = outputs[1]
+        seq_output = outputs[0]
+        logits = self.output2logits(pooled_output, seq_output, input_ids)
+
+        return self.calc_loss(logits, outputs, labels)
+
+
+class ElectraForRelationIdentification(ElectraForSequenceClassification, BaseModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.electra = ElectraModel(config)
+        self.init_weights()
+
+    def forward(self,
+                input_ids=None,
+                attention_mask=None,
+                token_type_ids=None,
+                position_ids=None,
+                head_mask=None,
+                inputs_embeds=None,
+                labels=None,
+                output_attentions=None,
+                output_hidden_states=None,
+                **kwargs):
+
+        outputs = self.electra(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states
+        )
+
+        pooled_output = outputs[1]
+        seq_output = outputs[0]
         logits = self.output2logits(pooled_output, seq_output, input_ids)
 
         return self.calc_loss(logits, outputs, labels)

@@ -1,9 +1,10 @@
 from transformers import (BertConfig, RobertaConfig, XLNetConfig, AlbertConfig, LongformerConfig,
                           BertTokenizer, RobertaTokenizer, XLNetTokenizer, AlbertTokenizer, LongformerTokenizer,
-                          DebertaConfig, DebertaTokenizer)
+                          DebertaConfig, DebertaTokenizer, ElectraConfig, ElectraTokenizer, GPT2Config, GPT2Tokenizer)
 from models import (BertForRelationIdentification, RoBERTaForRelationIdentification,
                     XLNetForRelationIdentification, AlbertForRelationIdentification,
-                    LongFormerForRelationIdentification, DebertaForRelationIdentification)
+                    LongFormerForRelationIdentification, DebertaForRelationIdentification,
+                    ElectraForRelationIdentification, GPT2ForRelationIdentification)
 
 
 EN1_START = "[s1]"
@@ -21,10 +22,12 @@ MODEL_DICT = {
     "xlnet": (XLNetForRelationIdentification, XLNetConfig, XLNetTokenizer),
     "albert": (AlbertForRelationIdentification, AlbertConfig, AlbertTokenizer),
     "longformer": (LongFormerForRelationIdentification, LongformerConfig, LongformerTokenizer),
-    "deberta": (DebertaForRelationIdentification, DebertaConfig, DebertaTokenizer)
+    "deberta": (DebertaForRelationIdentification, DebertaConfig, DebertaTokenizer),
+    "electra": (ElectraForRelationIdentification, ElectraConfig, ElectraTokenizer),
+    "gpt2": (GPT2ForRelationIdentification, GPT2Config, GPT2Tokenizer)
 }
 
-TOKENIZER_USE_FOUR_SPECIAL_TOKs = {'roberta', 'longformer'}
+TOKENIZER_USE_FOUR_SPECIAL_TOKs = {'roberta', 'longformer', 'gpt2'}
 
 # change VERSION if any major updates
 VERSION = "0.1"
