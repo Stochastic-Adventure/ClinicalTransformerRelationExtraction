@@ -113,8 +113,14 @@ class StableDropout(torch.nn.Module):
 class ContextPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(config.pooler_hidden_size, config.pooler_hidden_size)
-        self.dropout = StableDropout(config.pooler_dropout)
+        try:
+            pooler_hidden_size = config.pooler_hidden_size
+            pooler_dropout = config.pooler_dropout
+        except AttributeError:
+            pooler_hidden_size = config.hidden_size
+            pooler_dropout = 0.1
+        self.dense = nn.Linear(pooler_hidden_size, pooler_hidden_size)
+        self.dropout = StableDropout(pooler_dropout)
         self.config = config
 
     def forward(self, hidden_states):
