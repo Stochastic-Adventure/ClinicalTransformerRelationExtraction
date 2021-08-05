@@ -190,10 +190,12 @@ class TaskRunner(object):
         # init tokenizer and add special tags
         self.tokenizer = tokenizer.from_pretrained(self.args.pretrained_model, do_lower_case=self.args.do_lower_case)
         if self.args.model_type == "gpt2":
-            self.tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        last_token_idx = len(self.tokenizer)
-        self.tokenizer.add_tokens(SPEC_TAGS)
-        spec_token_new_ids = tuple([(last_token_idx + idx) for idx in range(len(self.tokenizer) - last_token_idx)])
+            self.tokenizer.add_special_tokens({'pad_token': '[PAD]',
+                                               'additional_special_tokens': SPEC_TAGS})
+        else:
+            last_token_idx = len(self.tokenizer)
+            self.tokenizer.add_tokens(SPEC_TAGS)
+            spec_token_new_ids = tuple([(last_token_idx + idx) for idx in range(len(self.tokenizer) - last_token_idx)])
         total_token_num = len(self.tokenizer)
 
         # init config
