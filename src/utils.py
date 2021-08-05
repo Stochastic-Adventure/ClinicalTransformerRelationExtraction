@@ -86,7 +86,7 @@ def measure_prf(preds, gs_labels, non_rel_label):
     total_tp, total_tp_fp, total_tp_tn = 0, 0, 0
     tn_dict = defaultdict(lambda: 0)
 
-    assert preds == gs_labels, f"prediction and gold standard is not equal, gold: {gs_labels}, pred: {preds}"
+    assert len(preds) == len(gs_labels), f"prediction and gold standard is not equal"
 
     labels = set(gs_labels)
     for l in labels:
