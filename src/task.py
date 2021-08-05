@@ -209,6 +209,10 @@ class TaskRunner(object):
             self.config.mem_len = self.config.d_model
             # change dropout name
             self.config.hidden_dropout_prob = self.config.dropout
+        if self.args.model_type == "gpt2":
+            self.config.resid_pdrop = self.config.dropout
+            self.config.attn_pdrop = self.config.dropout
+            self.embd_pdrop = self.config.dropout
         self.config.tags = spec_token_new_ids
         self.config.scheme = self.args.classification_scheme
         # binary mode
